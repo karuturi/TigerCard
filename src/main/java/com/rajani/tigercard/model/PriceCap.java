@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 public enum PriceCap {
     ONE_ONE(100, 500),
-    TWO_TWO(120, 600),
-    ONE_TWO(80, 400);
+    ONE_TWO(120, 600),
+    TWO_TWO(80, 400);
 
     private int dailyCap;
     private int weeklyCap;

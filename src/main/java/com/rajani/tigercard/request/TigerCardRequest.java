@@ -18,5 +18,5 @@ public class TigerCardRequest {
 //    String name;
 //    LocalDate dob;
 //    Gender gender;
-    List<Ticket> ticketRequests;
+    List<Ticket> tickets;
 }
