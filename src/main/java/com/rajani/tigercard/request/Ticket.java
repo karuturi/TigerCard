@@ -7,6 +7,7 @@ import com.rajani.tigercard.model.Zone;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.time.LocalTime;
 @Getter
 @AllArgsConstructor
 @ToString
+@Slf4j
 public class Ticket {
     LocalDateTime dateTime;
     Zone fromZone;
@@ -49,6 +51,7 @@ public class Ticket {
      * @return true if time is in the interval (exclusive)
      */
     private boolean isInRange(LocalTime time, Interval interval) {
+        log.debug("checking if {} is in range {}", time, interval);
         return time.isAfter(interval.getFrom()) && time.isBefore(interval.getTo());
     }
 

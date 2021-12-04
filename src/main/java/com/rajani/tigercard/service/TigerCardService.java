@@ -14,7 +14,7 @@ public class TigerCardService {
      * @return computed fare (assuming fare is always an integer)
      */
     public int computeFare(TigerCardRequest tigerCardRequest) {
-        log.debug("started processing tigercard request");
+        log.debug("started processing tigercard request {}", tigerCardRequest);
         TicketProcessor ticketProcessor = new TicketProcessor();
         //expects the tickets in time order. If not it needs to be sorted here
 //        List<Ticket> sortedRequests = tigerCardRequest.getTickets();

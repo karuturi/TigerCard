@@ -32,33 +32,29 @@ public class TicketProcessor {
     /**
      * this method exists only for testing convenience. Can use reflection to achieve the same
      */
-    protected void setCurrentWeek(int weekOfYear, int weekFare) {
-        currentWeekFare = weekFare;
-        currentWeekOfYear = weekOfYear;
-    }
-
-    /**
-     * this method exists only for testing convenience. Can use reflection to achieve the same
-     */
-    protected void setCurrentDay(int dayOfYear, int dayFare) {
+    protected void setCurrentDayAndWeek(int dayOfYear, int dayFare, int weekOfYear, int weekFare, int totalFare) {
         currentDayFare = dayFare;
         currentDayOfYear = dayOfYear;
+        currentWeekOfYear = weekOfYear;
+        currentWeekFare = weekFare;
+        fare = totalFare;
     }
+
     public void process(Ticket ticket) {
         log.debug("processing ticket {}", ticket);
         int ticketFare = ticket.getFare();
         int dayOfYear = ticket.getDateTime().getDayOfYear();
         int weekOfYear = ticket.getDateTime().get(WeekFields.ISO.weekOfWeekBasedYear());
-        PriceCap priceCap = PriceCap.of(ticket.getFromZone(), ticket.getToZone());
-        currentDayMaxCap = Math.max(priceCap.getDailyCap(), currentDayMaxCap);
-        currentWeekMaxCap = Math.max(priceCap.getWeeklyCap(), currentWeekMaxCap);
-        if(dayOfYear == currentDayOfYear) {
+        setDailyAndWeeklyMaxCap(ticket);
+        log.debug("current ticket fare {}", ticketFare);
+        if (dayOfYear == currentDayOfYear) {
             log.debug("same day of the year {}", dayOfYear);
             ticketFare = processSameDayTicket(ticketFare);
         } else {
             log.debug("current day {} is different from new day {}", currentDayOfYear, dayOfYear);
             ticketFare = processDifferentDayTicket(ticketFare, weekOfYear);
         }
+        log.debug("ticket fare after max cap processing {}", ticketFare);
         incrementWeekFare(ticketFare);
         incrementDayFare(ticketFare);
         //update current day and total fare
@@ -68,11 +64,19 @@ public class TicketProcessor {
         log.debug("fare after processing ticket {}", fare);
     }
 
+    private void setDailyAndWeeklyMaxCap(Ticket ticket) {
+        PriceCap priceCap = PriceCap.of(ticket.getFromZone(), ticket.getToZone());
+        log.debug("current daily max CAP {} and weekly max cap {}", currentDayMaxCap, currentWeekMaxCap);
+        currentDayMaxCap = Math.max(priceCap.getDailyCap(), currentDayMaxCap);
+        currentWeekMaxCap = Math.max(priceCap.getWeeklyCap(), currentWeekMaxCap);
+        log.debug("daily max CAP {} and weekly max cap {} after processing", currentDayMaxCap, currentWeekMaxCap);
+    }
+
     private int processDifferentDayTicket(int ticketFare, int weekOfYear) {
         log.debug("resetting daily fare for a different day.");
         resetDayFare(); //first ticket of the day. ticket fare is always less than cap
         int deltaFare = ticketFare;
-        if(weekOfYear == currentWeekOfYear) {
+        if (weekOfYear == currentWeekOfYear) {
             log.debug("same week of the year {}", weekOfYear);
             deltaFare = getFareAfterWeeklyCap(deltaFare);
         } else {
@@ -106,14 +110,14 @@ public class TicketProcessor {
     }
 
     private int getFareAfterWeeklyCap(int ticketFare) {
-        if(currentWeekMaxCap < currentWeekFare+ticketFare) {
+        if (currentWeekMaxCap < currentWeekFare + ticketFare) {
             return currentWeekMaxCap - currentWeekFare;
         }
         return ticketFare;
     }
 
     private int getFareAfterMaxDailyCap(int ticketFare) {
-        if(currentDayMaxCap < currentDayFare+ ticketFare) {
+        if (currentDayMaxCap < currentDayFare + ticketFare) {
             return currentDayMaxCap - currentDayFare;
         }
         return ticketFare;

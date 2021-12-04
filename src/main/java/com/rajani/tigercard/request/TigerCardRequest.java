@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class TigerCardRequest {
-//    String name;
+    //    String name;
 //    LocalDate dob;
 //    Gender gender;
     List<Ticket> tickets;
